@@ -110,6 +110,59 @@
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   font-weight: 700;
   font-size: 16px;
+  flex-shrink: 0;
+}
+
+.pass__logo-mark-svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- Bottom chrome (brand mark + NFC) ---------- */
+.pass__chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px var(--space-5) 12px;
+  color: var(--pass-fg);
+  margin-top: auto;
+}
+
+.pass__brand-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--pass-fg) 12%, transparent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--pass-fg);
+}
+
+.pass__brand-mark-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pass__brand-mark-svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pass__brand-mark-letter {
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.pass__nfc {
+  width: 22px;
+  height: 18px;
+  color: var(--pass-fg);
+  opacity: 0.72;
 }
 
 .pass__header-fields {

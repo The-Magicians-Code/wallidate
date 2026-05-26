@@ -20,6 +20,7 @@ import {
   formatValue,
 } from "./PassCardFields";
 import PassBarcode from "./PassBarcode";
+import BrandIcon from "./BrandIcon";
 
 interface PassCardProps {
   parsed: ParsedPass;
@@ -56,7 +57,7 @@ function TopStrip({
 }: {
   parsed: ParsedPass;
 }): JSX.Element {
-  const { pass, images } = parsed;
+  const { pass, images, brandIcon } = parsed;
   const logo = pickImage(images, "logo");
 
   return (
@@ -68,19 +69,67 @@ function TopStrip({
             src={logo.url}
             alt={pass.logoText ?? pass.organizationName ?? "Logo"}
           />
-        ) : pass.logoText ? (
-          <span class="pass__logo-text">{pass.logoText}</span>
         ) : (
           <>
-            <span class="pass__logo-mark">{logoFallback(pass)}</span>
-            {pass.organizationName && (
-              <span class="pass__logo-text">{pass.organizationName}</span>
+            <span class="pass__logo-mark">
+              {brandIcon ? (
+                <BrandIcon name={brandIcon} class="pass__logo-mark-svg" />
+              ) : (
+                <span class="pass__logo-mark-letter">
+                  {(pass.organizationName ?? "W").charAt(0).toUpperCase()}
+                </span>
+              )}
+            </span>
+            {pass.logoText && (
+              <span class="pass__logo-text">{pass.logoText}</span>
             )}
           </>
         )}
       </div>
       <HeaderFields fields={parsed.structure.headerFields} />
     </div>
+  );
+}
+
+function BottomChrome({ parsed }: { parsed: ParsedPass }): JSX.Element {
+  const { pass, images, brandIcon } = parsed;
+  const icon = pickImage(images, "icon");
+  return (
+    <div class="pass__chrome">
+      <span
+        class="pass__brand-mark"
+        aria-label={pass.organizationName ?? "Pass"}
+      >
+        {icon ? (
+          <img class="pass__brand-mark-img" src={icon.url} alt="" />
+        ) : brandIcon ? (
+          <BrandIcon name={brandIcon} class="pass__brand-mark-svg" />
+        ) : (
+          <span class="pass__brand-mark-letter" aria-hidden="true">
+            {logoFallback(pass).charAt(0).toUpperCase()}
+          </span>
+        )}
+      </span>
+      <NfcGlyph />
+    </div>
+  );
+}
+
+function NfcGlyph(): JSX.Element {
+  return (
+    <svg
+      class="pass__nfc"
+      viewBox="0 0 24 20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      aria-hidden="true"
+    >
+      <path d="M5 5 Q9 10 5 15" opacity="0.45" />
+      <path d="M9 3 Q15 10 9 17" opacity="0.7" />
+      <path d="M13 1 Q21 10 13 19" />
+    </svg>
   );
 }
 
@@ -225,6 +274,7 @@ export default function PassCard({ parsed }: PassCardProps): JSX.Element {
         <TopStrip parsed={parsed} />
         <StyleBody style={style} structure={structure} parsed={parsed} />
         {barcode && <PassBarcode barcode={barcode} />}
+        <BottomChrome parsed={parsed} />
       </article>
     </div>
   );

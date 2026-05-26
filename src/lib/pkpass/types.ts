@@ -166,7 +166,15 @@ export interface ParsedPass {
   totalBytes: number;
   rawFiles: string[];
   sampleNote?: string;
+  brandIcon?: BrandIconName;
 }
+
+export type BrandIconName =
+  | "festival"
+  | "plane"
+  | "coffee"
+  | "tag"
+  | "museum";
 
 export type Severity = "error" | "warning" | "info" | "unsupported";
 

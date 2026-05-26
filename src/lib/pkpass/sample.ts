@@ -1,5 +1,6 @@
 import type {
   Barcode,
+  BrandIconName,
   ParsedPass,
   PassJson,
   PassStructure,
@@ -44,7 +45,11 @@ function styleStructure(pass: PassJson, style: PassStyle): PassStructure {
   return (pass[style] ?? {}) as PassStructure;
 }
 
-function wrap(pass: PassJson, style: PassStyle): ParsedPass {
+function wrap(
+  pass: PassJson,
+  style: PassStyle,
+  brandIcon: BrandIconName,
+): ParsedPass {
   return {
     source: "sample",
     pass,
@@ -59,6 +64,7 @@ function wrap(pass: PassJson, style: PassStyle): ParsedPass {
     totalBytes: 0,
     rawFiles: [],
     sampleNote: SAMPLE_NOTE,
+    brandIcon,
   };
 }
 
@@ -119,7 +125,7 @@ function buildIndieFestival(): ParsedPass {
       ],
     },
   };
-  return wrap(pass, "eventTicket");
+  return wrap(pass, "eventTicket", "festival");
 }
 
 function buildTransatlantic(): ParsedPass {
@@ -185,7 +191,7 @@ function buildTransatlantic(): ParsedPass {
       ],
     },
   };
-  return wrap(pass, "boardingPass");
+  return wrap(pass, "boardingPass", "plane");
 }
 
 function buildCornerCoffee(): ParsedPass {
@@ -248,7 +254,7 @@ function buildCornerCoffee(): ParsedPass {
       ],
     },
   };
-  return wrap(pass, "storeCard");
+  return wrap(pass, "storeCard", "coffee");
 }
 
 function buildSpringPromo(): ParsedPass {
@@ -302,7 +308,7 @@ function buildSpringPromo(): ParsedPass {
       ],
     },
   };
-  return wrap(pass, "coupon");
+  return wrap(pass, "coupon", "tag");
 }
 
 function buildMuseumEntry(): ParsedPass {
@@ -359,7 +365,7 @@ function buildMuseumEntry(): ParsedPass {
       ],
     },
   };
-  return wrap(pass, "generic");
+  return wrap(pass, "generic", "museum");
 }
 
 export const SAMPLE_TEMPLATES: SampleTemplate[] = [
