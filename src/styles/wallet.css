@@ -465,6 +465,26 @@
   font-size: 22px;
 }
 
+/* ---------- Event ticket top-center lanyard notch ---------- */
+.pass[data-style="eventTicket"] {
+  --notch-w: 50px;
+  --notch-h: 24px;
+  -webkit-mask: radial-gradient(
+    ellipse var(--notch-w) var(--notch-h) at 50% 0,
+    transparent 99%,
+    #000 100%
+  );
+  mask: radial-gradient(
+    ellipse var(--notch-w) var(--notch-h) at 50% 0,
+    transparent 99%,
+    #000 100%
+  );
+}
+
+.pass[data-style="eventTicket"] .pass__top {
+  padding-top: 30px;
+}
+
 /* ---------- Coupon perforated edges ---------- */
 .pass[data-style="coupon"] {
   --perf-radius: 6px;
