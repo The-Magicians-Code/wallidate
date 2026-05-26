@@ -192,10 +192,6 @@ function StyleBody({
           </div>
         )}
         <BoardingPrimary fields={structure.primaryFields} />
-        <div class="pass__notches" aria-hidden="true">
-          <span class="pass__notch pass__notch--left" />
-          <span class="pass__notch pass__notch--right" />
-        </div>
         <FieldRow fields={structure.auxiliaryFields} max={4} />
         <FieldRow fields={structure.secondaryFields} max={4} />
       </>
