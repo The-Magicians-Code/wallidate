@@ -115,6 +115,19 @@ function BottomChrome({ parsed }: { parsed: ParsedPass }): JSX.Element {
   );
 }
 
+function PlaneGlyph(): JSX.Element {
+  return (
+    <svg
+      class="pass__plane"
+      viewBox="0 0 64 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M61 12c0-1-1-1.6-2-1.8l-13.5-2.6-7-6.8c-.4-.4-1-.6-1.6-.5l-2 .4 4.5 7-12.5 2.4-5.4-3.7c-.4-.3-1-.4-1.5-.3l-2.4.5 4.8 5.7L4 13.6c-1 .2-1.8 1-1.8 2v.4c0 .9.7 1.6 1.6 1.6h.2l16.4-1.2-4.8 5.7 2.4.5c.5.1 1.1 0 1.5-.3l5.4-3.7L37.4 21l-4.5 7 2 .4c.6.1 1.2-.1 1.6-.5l7-6.8 13.5-2.6c1-.2 2-.8 2-1.8z" />
+    </svg>
+  );
+}
+
 function NfcGlyph(): JSX.Element {
   return (
     <svg
@@ -148,7 +161,7 @@ function BoardingPrimary({
         <p class="field__value">{formatValue(from)}</p>
       </div>
       <div class="pass__boarding-arrow" aria-hidden="true">
-        →
+        <PlaneGlyph />
       </div>
       <div class="boarding-col boarding-col--right">
         {to?.label && <p class="field__label">{to.label}</p>}
@@ -179,6 +192,10 @@ function StyleBody({
           </div>
         )}
         <BoardingPrimary fields={structure.primaryFields} />
+        <div class="pass__notches" aria-hidden="true">
+          <span class="pass__notch pass__notch--left" />
+          <span class="pass__notch pass__notch--right" />
+        </div>
         <FieldRow fields={structure.auxiliaryFields} max={4} />
         <FieldRow fields={structure.secondaryFields} max={4} />
       </>
@@ -188,13 +205,15 @@ function StyleBody({
   if (style === "eventTicket") {
     return (
       <>
-        {strip && (
+        {strip ? (
           <img
             class="pass__strip"
             src={strip.url}
             alt=""
             aria-hidden="true"
           />
+        ) : (
+          <SampleHero parsed={parsed} />
         )}
         <PrimaryFields fields={structure.primaryFields} />
         <FieldRow fields={structure.secondaryFields} max={4} />
@@ -206,13 +225,15 @@ function StyleBody({
   if (style === "coupon" || style === "storeCard") {
     return (
       <>
-        {strip && (
+        {strip ? (
           <img
             class="pass__strip"
             src={strip.url}
             alt=""
             aria-hidden="true"
           />
+        ) : (
+          <SampleHero parsed={parsed} />
         )}
         <PrimaryFields fields={structure.primaryFields} />
         <FieldRow fields={structure.auxiliaryFields} max={4} />
@@ -241,10 +262,20 @@ function StyleBody({
 
   return (
     <>
+      <SampleHero parsed={parsed} />
       <PrimaryFields fields={structure.primaryFields} />
       <FieldRow fields={structure.secondaryFields} max={4} />
       <FieldRow fields={structure.auxiliaryFields} max={4} />
     </>
+  );
+}
+
+function SampleHero({ parsed }: { parsed: ParsedPass }): JSX.Element | null {
+  if (parsed.source !== "sample" || !parsed.brandIcon) return null;
+  return (
+    <div class="pass__hero" aria-hidden="true">
+      <BrandIcon name={parsed.brandIcon} class="pass__hero-icon" />
+    </div>
   );
 }
 
