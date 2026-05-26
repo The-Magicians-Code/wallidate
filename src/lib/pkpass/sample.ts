@@ -58,7 +58,7 @@ function wrap(
     images: new Map(),
     manifest: [],
     hasSignature: false,
-    signatureBytes: 0,
+    signatureSize: 0,
     localizations: [],
     fileCount: 0,
     totalBytes: 0,

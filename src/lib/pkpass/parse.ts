@@ -87,7 +87,8 @@ export async function parsePkpass(file: File | Blob): Promise<ParsedPass> {
   const manifest = await buildManifest(fileMap);
   const images = buildImages(fileMap);
   const localizations = detectLocalizations(fileMap);
-  const signatureBytes = fileMap.get("signature")?.byteLength ?? 0;
+  const signatureBytes = fileMap.get("signature");
+  const manifestBytes = fileMap.get("manifest.json");
 
   return {
     source: "upload",
@@ -96,12 +97,14 @@ export async function parsePkpass(file: File | Blob): Promise<ParsedPass> {
     structure,
     images,
     manifest,
-    hasSignature: signatureBytes > 0,
-    signatureBytes,
+    hasSignature: (signatureBytes?.byteLength ?? 0) > 0,
+    signatureSize: signatureBytes?.byteLength ?? 0,
     localizations,
     fileCount: entries.length,
     totalBytes,
     rawFiles: [...fileMap.keys()].sort(),
+    signatureBytes,
+    manifestBytes,
   };
 }
 

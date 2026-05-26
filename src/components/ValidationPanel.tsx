@@ -50,10 +50,10 @@ export default function ValidationPanel({
       </header>
 
       <p class="caveat" role="note">
-        <strong>Signature chain not verified —</strong>
-        &nbsp;we check structure, manifest hashes and pass.json shape, but
-        cryptographic trust is reported as an issue in the list below, not
-        confirmed in the browser.
+        <strong>Structural validator —</strong>
+        &nbsp;these checks cover pass.json shape, manifest SHA-1 hashes, and
+        style-specific requirements. Cryptographic signature verification
+        runs in the Signature panel below.
       </p>
 
       {total === 0 ? (

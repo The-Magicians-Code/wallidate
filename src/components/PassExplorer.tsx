@@ -7,11 +7,16 @@ import {
 } from "../lib/pkpass/parse";
 import { pickRandomSample } from "../lib/pkpass/sample";
 import { validatePass } from "../lib/pkpass/validate";
-import type { ParsedPass, ValidationResult } from "../lib/pkpass/types";
+import type {
+  ParsedPass,
+  SignatureInfo,
+  ValidationResult,
+} from "../lib/pkpass/types";
 import Uploader from "./Uploader";
 import PassCard from "./PassCard";
 import PassBack from "./PassBack";
 import ValidationPanel from "./ValidationPanel";
+import SignaturePanel from "./SignaturePanel";
 
 type Status = "idle" | "parsing" | "ready";
 
@@ -19,8 +24,10 @@ export default function PassExplorer() {
   const [status, setStatus] = useState<Status>("idle");
   const [parsed, setParsed] = useState<ParsedPass | null>(null);
   const [result, setResult] = useState<ValidationResult | null>(null);
+  const [signature, setSignature] = useState<SignatureInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const parsedRef = useRef<ParsedPass | null>(null);
+  const verifyTokenRef = useRef(0);
 
   useEffect(() => {
     parsedRef.current = parsed;
@@ -41,6 +48,78 @@ export default function PassExplorer() {
     setResult(validatePass(next));
     setError(null);
     setStatus("ready");
+
+    const token = ++verifyTokenRef.current;
+
+    if (next.source !== "upload" || !next.hasSignature) {
+      setSignature(null);
+      return;
+    }
+
+    if (!next.signatureBytes || !next.manifestBytes) {
+      // Signature present but manifest missing (or vice versa) — the verifier
+      // can't run, but we shouldn't silently skip. Surface as a signature
+      // error so the user sees the cause.
+      const reason = !next.manifestBytes
+        ? "manifest.json is missing from the package — cannot verify the detached signature."
+        : "signature file bytes were not retained by the parser.";
+      setSignature({
+        status: "error",
+        certs: [],
+        issues: [
+          {
+            severity: "error",
+            code: !next.manifestBytes
+              ? "signature.manifest-missing"
+              : "signature.bytes-missing",
+            message: reason,
+          },
+        ],
+        startedAt: Date.now(),
+        finishedAt: Date.now(),
+      });
+      return;
+    }
+
+    setSignature({
+      status: "verifying",
+      certs: [],
+      issues: [],
+      startedAt: Date.now(),
+    });
+    const sigBytes = next.signatureBytes;
+    const manBytes = next.manifestBytes;
+    void (async () => {
+      try {
+        const { verifyPassSignature } = await import(
+          "../lib/pkpass/signature"
+        );
+        if (verifyTokenRef.current !== token) return;
+        const info = await verifyPassSignature(
+          sigBytes,
+          manBytes,
+          next.pass.passTypeIdentifier ?? "",
+          next.pass.teamIdentifier ?? "",
+        );
+        if (verifyTokenRef.current !== token) return;
+        setSignature(info);
+      } catch (e) {
+        if (verifyTokenRef.current !== token) return;
+        setSignature({
+          status: "error",
+          certs: [],
+          issues: [
+            {
+              severity: "error",
+              code: "signature.verify.import",
+              message: `Could not load the signature verifier: ${(e as Error).message}`,
+            },
+          ],
+          startedAt: Date.now(),
+          finishedAt: Date.now(),
+        });
+      }
+    })();
   }, []);
 
   const onFile = useCallback(
@@ -86,6 +165,7 @@ export default function PassExplorer() {
           <div class="results__right">
             {parsed.source === "sample" && <SampleBanner />}
             <ValidationPanel result={result} />
+            {signature && <SignaturePanel info={signature} />}
 
             {parsed.structure.backFields &&
               parsed.structure.backFields.length > 0 && (
@@ -165,7 +245,7 @@ function PackageSummary({ parsed }: { parsed: ParsedPass }) {
         >
           {parsed.fileCount} files · {formatBytes(parsed.totalBytes)} ·{" "}
           {parsed.hasSignature
-            ? `signature ${formatBytes(parsed.signatureBytes)}`
+            ? `signature ${formatBytes(parsed.signatureSize)}`
             : "no signature"}
         </div>
       </div>

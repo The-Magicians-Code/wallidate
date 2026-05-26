@@ -12,10 +12,13 @@
   },
   "dependencies": {
     "@astrojs/preact": "^4.0.0",
+    "asn1js": "^3.0.10",
     "astro": "^5.1.0",
     "bwip-js": "^4.5.1",
     "jszip": "^3.10.1",
+    "pkijs": "^3.4.0",
     "preact": "^10.25.0",
+    "pvutils": "^1.1.5",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {

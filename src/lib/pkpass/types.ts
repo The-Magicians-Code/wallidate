@@ -160,13 +160,46 @@ export interface ParsedPass {
   images: Map<string, PassImage>;
   manifest: ManifestEntry[];
   hasSignature: boolean;
-  signatureBytes: number;
+  signatureSize: number;
   localizations: string[];
   fileCount: number;
   totalBytes: number;
   rawFiles: string[];
   sampleNote?: string;
   brandIcon?: BrandIconName;
+  signatureBytes?: Uint8Array;
+  manifestBytes?: Uint8Array;
+}
+
+export type SignatureStatus =
+  | "skipped"
+  | "verifying"
+  | "verified"
+  | "invalid"
+  | "error";
+
+export type CertRole = "wwdr" | "passtype" | "other";
+
+export interface CertInfo {
+  role: CertRole;
+  subjectCN?: string;
+  subjectOU?: string;
+  issuerCN?: string;
+  issuerO?: string;
+  serialNumber: string;
+  notBefore: string;
+  notAfter: string;
+  expired: boolean;
+}
+
+export interface SignatureInfo {
+  status: SignatureStatus;
+  signedAt?: string;
+  digestAlgorithm?: string;
+  certs: CertInfo[];
+  issues: ValidationIssue[];
+  startedAt: number;
+  finishedAt?: number;
 }
 
 export type BrandIconName =

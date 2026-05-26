@@ -191,7 +191,7 @@ export function validatePass(parsed: ParsedPass): ValidationResult {
     // 3. Signature unverifiable info
     info(
       "signature.unverifiable",
-      `Signature blob present (${parsed.signatureBytes} bytes). Apple WWDR certificate-chain verification is not performed in the browser — only structural integrity is checked.`,
+      `Signature blob present (${parsed.signatureSize} bytes). Cryptographic verification runs asynchronously — see the Signature panel below.`,
       "signature",
     );
   }
@@ -216,6 +216,28 @@ export function validatePass(parsed: ParsedPass): ValidationResult {
         "teamIdentifier",
       );
     }
+  }
+
+  // 5a. serialNumber length — Apple recommends >= 16 chars for uniqueness
+  if (typeof pass.serialNumber === "string" && pass.serialNumber.length < 16) {
+    warn(
+      "serialNumber.short",
+      `\`serialNumber\` is ${pass.serialNumber.length} chars; Apple recommends 16+ for uniqueness across passes.`,
+      "serialNumber",
+    );
+  }
+
+  // 5b. authenticationToken length — Apple requires >= 16 chars
+  if (
+    typeof pass.authenticationToken === "string" &&
+    pass.authenticationToken.length > 0 &&
+    pass.authenticationToken.length < 16
+  ) {
+    err(
+      "authenticationToken.short",
+      `\`authenticationToken\` is ${pass.authenticationToken.length} chars; Apple requires at least 16.`,
+      "authenticationToken",
+    );
   }
 
   // 6. Color fields
