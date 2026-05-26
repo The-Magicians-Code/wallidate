@@ -1,0 +1,14 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Footer from "../components/Footer.astro";
+import PassExplorer from "../components/PassExplorer";
+---
+
+<Layout>
+  <main>
+    <Hero />
+    <PassExplorer client:only="preact" />
+  </main>
+  <Footer />
+</Layout>

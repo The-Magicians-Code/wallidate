@@ -1,0 +1,23 @@
+{
+  "name": "wallidate",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^5.1.0",
+    "@astrojs/preact": "^4.0.0",
+    "preact": "^10.25.0",
+    "jszip": "^3.10.1",
+    "bwip-js": "^4.5.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
