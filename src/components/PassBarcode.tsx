@@ -42,7 +42,11 @@ export default function PassBarcode({ barcode }: PassBarcodeProps): JSX.Element 
       {error ? (
         <p class="pass__barcode-error">{error}</p>
       ) : (
-        <canvas ref={canvasRef} aria-label={barcode.altText ?? "Barcode"} />
+        <canvas
+          ref={canvasRef}
+          data-format={barcode.format}
+          aria-label={barcode.altText ?? "Barcode"}
+        />
       )}
       {barcode.altText && <p class="pass__barcode-alt">{barcode.altText}</p>}
     </div>

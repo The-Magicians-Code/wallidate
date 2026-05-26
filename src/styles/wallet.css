@@ -430,6 +430,15 @@
   image-rendering: pixelated;
 }
 
+/* Linear (Code128) and stacked (PDF417) barcodes are designed to be wide.
+   Stretch them to fill the panel — bwip-js's intrinsic canvas size depends
+   on message length, so without this they end up cramped at QR-ish widths
+   for short payloads. Aspect ratio preserved via height: auto. */
+.pass__barcode canvas[data-format="PKBarcodeFormatPDF417"],
+.pass__barcode canvas[data-format="PKBarcodeFormatCode128"] {
+  width: 100%;
+}
+
 .pass__barcode-alt {
   font-size: 11px;
   color: #555;
