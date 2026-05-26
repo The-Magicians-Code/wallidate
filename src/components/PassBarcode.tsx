@@ -6,17 +6,6 @@ interface PassBarcodeProps {
   barcode: Barcode;
 }
 
-const BCID_MAP: Record<BarcodeFormat, string> = {
-  PKBarcodeFormatQR: "qrcode",
-  PKBarcodeFormatPDF417: "pdf417compact",
-  PKBarcodeFormatAztec: "azteccode",
-  PKBarcodeFormatCode128: "code128",
-};
-
-function bcidFor(format: BarcodeFormat): string {
-  return BCID_MAP[format] ?? "qrcode";
-}
-
 export default function PassBarcode({ barcode }: PassBarcodeProps): JSX.Element {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,36 +18,12 @@ export default function PassBarcode({ barcode }: PassBarcodeProps): JSX.Element 
       const canvas = canvasRef.current;
       if (!canvas) return;
       try {
-        const mod = await import("bwip-js/browser");
-        const bwip =
-          (mod as unknown as { default?: typeof mod }).default ?? mod;
-        if (cancelled) return;
-
-        const bcid = bcidFor(barcode.format);
-
-        const opts: Record<string, unknown> = {
-          bcid,
-          text: barcode.message,
-          includetext: false,
-          paddingwidth: 4,
-          paddingheight: 4,
-        };
-        if (bcid === "qrcode" || bcid === "azteccode") {
-          // Matrix codes: scale only. Passing `height` squashes them.
-          opts.scale = 4;
-        } else if (bcid === "pdf417compact") {
-          opts.scale = 3;
-          opts.columns = 6;
+        if (barcode.format === "PKBarcodeFormatQR") {
+          await renderQR(canvas, barcode.message);
         } else {
-          // Linear (code128): `height` is bar height in mm.
-          opts.scale = 2;
-          opts.height = 14;
+          await renderBwip(canvas, barcode.format, barcode.message);
         }
-
-        // bwip-js mutates the supplied canvas. Reset first.
-        canvas.width = 0;
-        canvas.height = 0;
-        bwip.toCanvas(canvas, opts as never);
+        if (cancelled) return;
       } catch (e) {
         if (cancelled) return;
         const msg = e instanceof Error ? e.message : String(e);
@@ -82,4 +47,52 @@ export default function PassBarcode({ barcode }: PassBarcodeProps): JSX.Element 
       {barcode.altText && <p class="pass__barcode-alt">{barcode.altText}</p>}
     </div>
   );
+}
+
+async function renderQR(canvas: HTMLCanvasElement, text: string): Promise<void> {
+  const QRCode = (await import("qrcode")).default;
+  await QRCode.toCanvas(canvas, text, {
+    errorCorrectionLevel: "M",
+    margin: 1,
+    scale: 5,
+    color: { dark: "#000000", light: "#ffffff" },
+  });
+}
+
+const BCID_MAP: Record<BarcodeFormat, string> = {
+  PKBarcodeFormatQR: "qrcode",
+  PKBarcodeFormatPDF417: "pdf417compact",
+  PKBarcodeFormatAztec: "azteccode",
+  PKBarcodeFormatCode128: "code128",
+};
+
+async function renderBwip(
+  canvas: HTMLCanvasElement,
+  format: BarcodeFormat,
+  text: string,
+): Promise<void> {
+  const mod = await import("bwip-js/browser");
+  const bwip = (mod as unknown as { default?: typeof mod }).default ?? mod;
+  const bcid = BCID_MAP[format];
+
+  const opts: Record<string, unknown> = {
+    bcid,
+    text,
+    includetext: false,
+    paddingwidth: 4,
+    paddingheight: 4,
+  };
+  if (bcid === "azteccode") {
+    opts.scale = 4;
+  } else if (bcid === "pdf417compact") {
+    opts.scale = 3;
+    opts.columns = 6;
+  } else {
+    opts.scale = 2;
+    opts.height = 14;
+  }
+
+  canvas.width = 0;
+  canvas.height = 0;
+  bwip.toCanvas(canvas, opts as never);
 }
