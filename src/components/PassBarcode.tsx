@@ -98,5 +98,11 @@ async function renderBwip(
 
   canvas.width = 0;
   canvas.height = 0;
+  // The qrcode lib sets inline style.width/height when rendering a QR code.
+  // Preact reuses this same canvas element across format switches, so clear
+  // those leftover dimensions or they'd override the stylesheet and squash
+  // wide barcodes (PDF417/Code128) into the QR square.
+  canvas.style.width = "";
+  canvas.style.height = "";
   bwip.toCanvas(canvas, opts as never);
 }
