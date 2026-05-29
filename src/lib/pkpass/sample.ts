@@ -376,9 +376,16 @@ export const SAMPLE_TEMPLATES: SampleTemplate[] = [
   { id: "museum-entry", label: "Museum Membership", build: buildMuseumEntry },
 ];
 
+let lastSampleId: string | null = null;
+
+// Never return the same template twice in a row, so every "Surprise me" click
+// produces a visibly different pass (otherwise the app looks frozen).
 export function pickRandomSample(): ParsedPass {
-  const idx = Math.floor(Math.random() * SAMPLE_TEMPLATES.length);
-  return SAMPLE_TEMPLATES[idx].build();
+  const pool = SAMPLE_TEMPLATES.filter((t) => t.id !== lastSampleId);
+  const choices = pool.length > 0 ? pool : SAMPLE_TEMPLATES;
+  const chosen = choices[Math.floor(Math.random() * choices.length)];
+  lastSampleId = chosen.id;
+  return chosen.build();
 }
 
 export function buildSampleById(id: string): ParsedPass | undefined {
